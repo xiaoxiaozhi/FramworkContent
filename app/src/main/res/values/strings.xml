@@ -1,0 +1,7 @@
+<resources>
+    <string name="app_name">FramworkContent</string>
+    <string name="show_popup">显示弹窗</string>
+    <string name="remove_popup">移除弹窗</string>
+    <string name="popup_hint">弹窗 #%1$d</string>
+    <string name="popup_drag_tip">按住可拖动</string>
+</resources>

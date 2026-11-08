@@ -1,0 +1,16 @@
+<?xml version="1.0" encoding="utf-8"?>
+<FrameLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:background="?android:attr/colorBackground">
+
+    <!-- Activity 上只有一个按钮：显示弹窗，然后 finish() -->
+    <com.google.android.material.button.MaterialButton
+        android:id="@+id/btn_show_popup"
+        android:layout_width="180dp"
+        android:layout_height="wrap_content"
+        android:layout_gravity="end|center_vertical"
+        android:layout_marginEnd="24dp"
+        android:layout_marginRight="24dp"
+        android:text="@string/show_popup" />
+</FrameLayout>
