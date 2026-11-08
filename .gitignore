@@ -13,3 +13,16 @@
 .externalNativeBuild
 .cxx
 local.properties
+
+# 与项目无关的下载文件 / 系统日志
+*.msu
+dism-*.log
+install-result.txt
+catalog.html
+download.html
+desktop.png
+
+# 工具缓存 / 本地记忆
+/.kotlin/
+/media/
+/memory/
