@@ -7,4 +7,7 @@
     <color name="teal_700">#FF018786</color>
     <color name="black">#FF000000</color>
     <color name="white">#FFFFFFFF</color>
+
+    <!-- 演示 Activity 的初始不透明底色；点“透明+换壁纸”后会被清成透明，露出壁纸 -->
+    <color name="demo_backdrop">#FF0E1216</color>
 </resources>

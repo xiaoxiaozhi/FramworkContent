@@ -15,4 +15,18 @@
     </style>
     <!-- 无 ActionBar，方便观察全屏透明窗口的覆盖效果 -->
     <style name="Theme.FramworkContent.WindowDemo" parent="Theme.MaterialComponents.DayNight.NoActionBar" />
+
+    <!--
+      半透明变体：windowIsTranslucent 让窗口 surface 带 alpha 通道，
+      WMS 就不会把这块 surface 当成不透明遮挡层，
+      于是把背景清成透明 + FLAG_SHOW_WALLPAPER 之后，壁纸能真的透出来。
+      （只用普通主题的话 surface 是 RGBX 格式，壁纸永远看不见）
+    -->
+    <style name="Theme.FramworkContent.WindowDemo.Translucent">
+        <item name="android:windowIsTranslucent">true</item>
+        <item name="android:windowBackground">@android:color/transparent</item>
+        <item name="android:windowNoTitle">true</item>
+        <item name="android:background">@android:color/transparent</item>
+        <item name="android:windowContentOverlay">@null</item>
+    </style>
 </resources>

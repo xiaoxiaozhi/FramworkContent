@@ -1,0 +1,9 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- 全屏弹窗的边框：中间完全透明，只留一圈细边，方便看清它确实覆盖到屏幕边缘（含状态栏/导航栏下方） -->
+<shape xmlns:android="http://schemas.android.com/apk/res/android"
+    android:shape="rectangle">
+    <solid android:color="@android:color/transparent" />
+    <stroke
+        android:width="3dp"
+        android:color="#FF00E5FF" />
+</shape>
