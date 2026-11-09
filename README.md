@@ -12,6 +12,7 @@ Android 窗口（Window / WindowManager）实验工程。用最小可运行的 D
 | 可拖动小窗 | 用 `TYPE_APPLICATION_OVERLAY` 起一个可拖动、可点击的悬浮窗；Activity `finish()` 后窗口依然存在 | `PopupHost` + `DragPopup`，`PixelFormat.TRANSPARENT` + `FLAG_LAYOUT_IN_SCREEN | FLAG_LAYOUT_NO_LIMITS` |
 | 全屏弹窗 | `MATCH_PARENT` 铺满整屏（含系统栏区域）的 overlay 窗口 | `FullScreenPopup`，`ty=2038`、`fitInsetsTypes=0`；显示后会 `removeViewImmediate` + `addView` 把小窗重新抬到上层，否则小窗的关闭按钮点不到 |
 | 透明 + 换壁纸 | 点按钮后 Activity 背景立即透明，露出系统壁纸，并每 3 秒在两张壁纸间轮换 | 主题 `windowIsTranslucent=true` + `window.addFlags(FLAG_SHOW_WALLPAPER)` + `WallpaperManager.setBitmap()`（需 `SET_WALLPAPER` 权限） |
+| 画中画（PiP） | 点「进入画中画」，整屏 Activity 收进 16:9 悬浮小窗，按钮列自动隐藏 | `enterPictureInPictureMode(PictureInPictureParams)` + manifest `supportsPictureInPicture="true"` + `onPictureInPictureModeChanged()` |
 
 ## 几个要点
 
@@ -31,6 +32,16 @@ Android 窗口（Window / WindowManager）实验工程。用最小可运行的 D
 2. 必须 `addFlags(FLAG_SHOW_WALLPAPER)`，`WallpaperController` 只会把壁纸窗口挂给声明了该 flag 的窗口。
 
 每次 `setBitmap()` 都会让 `WallpaperManagerService` 重新 `bindWallpaperComponentLocked` 重建 ImageWallpaper，新 surface 出首帧前有短暂黑帧，所以轮换间隔取 3 秒而不是更短。
+
+**画中画（PiP）**
+
+PiP 不是新开窗口，而是把同一个 Activity 的 task 收进 `mode=pinned` 的容器里显示，Activity 实例不变。三个前提：
+
+1. manifest 的 activity 上 `android:supportsPictureInPicture="true"`；
+2. 设备支持 `FEATURE_PICTURE_IN_PICTURE`；
+3. Activity 处于 resumed 状态（后台/finish 后调用只会返回 `false`，不抛异常）。
+
+另外必须自己声明 `android:configChanges="keyboard|keyboardHidden|orientation|screenSize|smallestScreenSize|screenLayout|uiMode"`，否则缩窗触发的配置变更会让 Activity 重建。`setAspectRatio(Rational(16,9))` 决定小窗比例；实测 AOSP 12 上窗口 bounds 为 `Rect(533,1206-1038,1490)` = 505×284，正好 16:9。
 
 ## 验证截图
 

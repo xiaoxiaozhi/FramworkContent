@@ -1,7 +1,10 @@
 package com.example.framworkcontent
 
 import android.content.Intent
+import android.app.PictureInPictureParams
 import android.app.WallpaperManager
+import android.content.pm.PackageManager
+import android.content.res.Configuration
 import android.graphics.BitmapFactory
 import android.graphics.Color
 import android.os.Build
@@ -10,6 +13,7 @@ import android.os.Handler
 import android.os.Looper
 import android.provider.Settings
 import android.util.Log
+import android.util.Rational
 import android.view.View
 import android.view.WindowManager
 import android.widget.Toast
@@ -42,6 +46,10 @@ import com.google.android.material.button.MaterialButton
  * 让 WMS 把系统壁纸窗口挂到本 Activity 下面，于是壁纸直接可见；
  * 随后每 [WALLPAPER_INTERVAL_MS] 在两张壁纸之间切换一次
  * （WallpaperManager.setBitmap，需要 SET_WALLPAPER 权限）。
+ *
+ * D. 画中画（PiP）：点「进入画中画」调 enterPictureInPictureMode()，
+ * 整屏 Activity 被收进一个 16:9 的悬浮小窗。前置条件是 manifest 里
+ * supportsPictureInPicture="true"，且 configChanges 自己声明（否则缩窗时会重建）。
  */
 class WindowDemoActivity : AppCompatActivity() {
 
@@ -90,6 +98,61 @@ class WindowDemoActivity : AppCompatActivity() {
 //            makeWindowTransparent()
             startWallpaperCycle()
         }
+
+        findViewById<MaterialButton>(R.id.btn_pip).setOnClickListener {
+            enterPip()
+        }
+    }
+
+    /**
+     * 进入画中画。
+     *
+     * PiP 的本质不是"新开一个窗口"，而是让 WMS 把这同一个 Activity 的 task
+     * 收进一个 PinnedStack / PiP 容器里显示，Activity 实例不变，只收到一次
+     * onPictureInPictureModeChanged 和一次 configuration change。
+     *
+     * 三个必要前提：
+     *  1. manifest 的 activity 上 supportsPictureInPicture="true"
+     *  2. 设备/系统支持 FEATURE_PICTURE_IN_PICTURE（AOSP 手持设备有）
+     *  3. Activity 处于 resumed（在后台或已 finish 时调用会返回 false）
+     *
+     * setAspectRatio 决定 PiP 窗口比例；不给的话系统用当前窗口比例。
+     * 返回 false 通常意味着当前状态不允许（比如权限/多窗口限制），不抛异常。
+     */
+    private fun enterPip() {
+        if (!packageManager.hasSystemFeature(PackageManager.FEATURE_PICTURE_IN_PICTURE)) {
+            Toast.makeText(this, R.string.pip_unsupported, Toast.LENGTH_SHORT).show()
+            return
+        }
+        val params = PictureInPictureParams.Builder()
+            .setAspectRatio(Rational(16, 9))
+            .build()
+        if (!enterPictureInPictureMode(params)) {
+            Toast.makeText(this, R.string.pip_unsupported, Toast.LENGTH_SHORT).show()
+        }
+    }
+
+    /**
+     * PiP 模式切换回调（API 26+）。进 PiP 时窗口只有几百 px，
+     * 这里把按钮列收起来、换上一行占位文字，顺便给根布局铺个实底，
+     * 否则透明主题 + 壁纸在 PiP 容器里看起来是一片黑，分不清是小窗还是没渲染。
+     */
+    override fun onPictureInPictureModeChanged(
+        isInPictureInPictureMode: Boolean,
+        newConfig: Configuration
+    ) {
+        super.onPictureInPictureModeChanged(isInPictureInPictureMode, newConfig)
+        findViewById<View>(R.id.btn_bar).visibility =
+            if (isInPictureInPictureMode) View.GONE else View.VISIBLE
+        findViewById<View>(R.id.tv_pip_hint).visibility =
+            if (isInPictureInPictureMode) View.VISIBLE else View.GONE
+        findViewById<View>(R.id.root).setBackgroundResource(
+            if (isInPictureInPictureMode) {
+                R.color.demo_backdrop
+            } else {
+                android.R.color.transparent
+            }
+        )
     }
 
     /**

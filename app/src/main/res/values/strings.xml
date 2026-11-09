@@ -9,5 +9,8 @@
     <string name="fullscreen_hint">全屏透明弹窗</string>
     <string name="fullscreen_size_tip">MATCH_PARENT · 覆盖状态栏与导航栏</string>
     <string name="transparent_bg_wallpaper">换壁纸闪黑实验</string>
+    <string name="enter_pip">进入画中画</string>
+    <string name="pip_running">画中画 · PiP 16:9</string>
+    <string name="pip_unsupported">当前设备/系统不支持画中画</string>
     <string name="wallpaper_failed">设置壁纸失败（需要 SET_WALLPAPER 权限）</string>
 </resources>
