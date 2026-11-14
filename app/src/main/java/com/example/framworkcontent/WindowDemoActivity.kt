@@ -60,6 +60,10 @@ class WindowDemoActivity : AppCompatActivity() {
     private val wallpaperCycle = intArrayOf(R.drawable.wallpaper_a, R.drawable.wallpaper_b)
     private var wallpaperIndex = 0
     private var wallpaperCycling = false
+
+    /** Activity 窗口当前是否被置上了 FLAG_NOT_FOCUSABLE */
+    private var windowNotFocusable = false
+
     private val wallpaperHandler = Handler(Looper.getMainLooper())
     private val wallpaperTask = object : Runnable {
         override fun run() {
@@ -102,6 +106,44 @@ class WindowDemoActivity : AppCompatActivity() {
         findViewById<MaterialButton>(R.id.btn_pip).setOnClickListener {
             enterPip()
         }
+
+        findViewById<MaterialButton>(R.id.btn_toggle_focusable).setOnClickListener {
+            toggleWindowFocusable()
+        }
+    }
+
+    /**
+     * 切换 Activity 窗口的 FLAG_NOT_FOCUSABLE（「焦点无法选中」）。
+     *
+     * 置上之后这个 window 不再参与焦点竞争：WMS 不会把 input focus 交给它，
+     * 按键/遥控器事件和输入法都不会派发过来，`dumpsys window` 的
+     * mCurrentFocus 会落到别的窗口上。
+     *
+     * 注意 FLAG_NOT_FOCUSABLE 只是隐含 FLAG_NOT_TOUCH_MODAL，并不是
+     * FLAG_NOT_TOUCHABLE —— 触摸命中（touchableRegion）不受影响，
+     * 所以这个按钮还能再点一次，把 flag 清掉恢复焦点。
+     */
+    private fun toggleWindowFocusable() {
+        windowNotFocusable = !windowNotFocusable
+        if (windowNotFocusable) {
+            window.addFlags(WindowManager.LayoutParams.FLAG_NOT_FOCUSABLE)
+        } else {
+            window.clearFlags(WindowManager.LayoutParams.FLAG_NOT_FOCUSABLE)
+        }
+
+        findViewById<MaterialButton>(R.id.btn_toggle_focusable).setText(
+            if (windowNotFocusable) R.string.restore_window_focus
+            else R.string.set_window_not_focusable
+        )
+
+        val flags = window.attributes.flags
+        val isSet = (flags and WindowManager.LayoutParams.FLAG_NOT_FOCUSABLE) != 0
+        Log.i(TAG, "toggleWindowFocusable: notFocusable=$isSet flags=0x${Integer.toHexString(flags)}")
+        Toast.makeText(
+            this,
+            if (isSet) R.string.window_not_focusable else R.string.window_focusable,
+            Toast.LENGTH_SHORT
+        ).show()
     }
 
     /**

@@ -61,5 +61,13 @@
             android:layout_height="wrap_content"
             android:layout_marginTop="16dp"
             android:text="@string/enter_pip" />
+
+        <!-- 点一下：addFlags(FLAG_NOT_FOCUSABLE)，窗口不再参与焦点竞争；再点一下清掉 -->
+        <com.google.android.material.button.MaterialButton
+            android:id="@+id/btn_toggle_focusable"
+            android:layout_width="180dp"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="16dp"
+            android:text="@string/set_window_not_focusable" />
     </LinearLayout>
 </FrameLayout>

@@ -13,4 +13,8 @@
     <string name="pip_running">画中画 · PiP 16:9</string>
     <string name="pip_unsupported">当前设备/系统不支持画中画</string>
     <string name="wallpaper_failed">设置壁纸失败（需要 SET_WALLPAPER 权限）</string>
+    <string name="set_window_not_focusable">设置窗口不可获焦</string>
+    <string name="restore_window_focus">恢复窗口焦点</string>
+    <string name="window_not_focusable">窗口已设为不可获焦（FLAG_NOT_FOCUSABLE）</string>
+    <string name="window_focusable">已恢复窗口焦点</string>
 </resources>

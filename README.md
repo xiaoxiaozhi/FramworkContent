@@ -13,6 +13,11 @@ Android 窗口（Window / WindowManager）实验工程。用最小可运行的 D
 | 全屏弹窗 | `MATCH_PARENT` 铺满整屏（含系统栏区域）的 overlay 窗口 | `FullScreenPopup`，`ty=2038`、`fitInsetsTypes=0`；显示后会 `removeViewImmediate` + `addView` 把小窗重新抬到上层，否则小窗的关闭按钮点不到 |
 | 透明 + 换壁纸 | 点按钮后 Activity 背景立即透明，露出系统壁纸，并每 3 秒在两张壁纸间轮换 | 主题 `windowIsTranslucent=true` + `window.addFlags(FLAG_SHOW_WALLPAPER)` + `WallpaperManager.setBitmap()`（需 `SET_WALLPAPER` 权限） |
 | 画中画（PiP） | 点「进入画中画」，整屏 Activity 收进 16:9 悬浮小窗，按钮列自动隐藏 | `enterPictureInPictureMode(PictureInPictureParams)` + manifest `supportsPictureInPicture="true"` + `onPictureInPictureModeChanged()` |
+| 窗口不可获焦 | 点一下后 WMS 不再把 input focus 交给该窗口（`mCurrentFocus=null`），按键/输入法事件不派发；触摸仍能命中，再点一下恢复焦点 | `window.addFlags(FLAG_NOT_FOCUSABLE)` / `clearFlags()`，按钮文案同步切换 |
+
+## 实验
+
+[`LAB.md`](LAB.md) 是一份**故障注入清单**：6 个可以从本工程直接复现的问题（焦点消失、触摸被吞、壁纸不出现、PiP 静默失败、无焦点 ANR、旋转重建），每个都给了「改什么 / 判据命令 / 根因锚点」。没有真实 bug 时，用它制造 bug。
 
 ## 几个要点
 
@@ -32,6 +37,10 @@ Android 窗口（Window / WindowManager）实验工程。用最小可运行的 D
 2. 必须 `addFlags(FLAG_SHOW_WALLPAPER)`，`WallpaperController` 只会把壁纸窗口挂给声明了该 flag 的窗口。
 
 每次 `setBitmap()` 都会让 `WallpaperManagerService` 重新 `bindWallpaperComponentLocked` 重建 ImageWallpaper，新 surface 出首帧前有短暂黑帧，所以轮换间隔取 3 秒而不是更短。
+
+**`FLAG_NOT_FOCUSABLE` 不等于不可触摸**
+
+`addFlags(FLAG_NOT_FOCUSABLE)` 后 WMS 不再把这个 window 当作焦点候选，`dumpsys window` 里 `mCurrentFocus=null`、该窗口 `mAttrs` 的 flags 多出 `0x00000008`，按键/遥控器/输入法都不会派发过来。但它只是隐含 `FLAG_NOT_TOUCH_MODAL`，不是 `FLAG_NOT_TOUCHABLE`，触摸命中区域不变 —— 所以同一个按钮还能再点一次把 flag 清掉，焦点随即回到 Activity。
 
 **画中画（PiP）**
 
